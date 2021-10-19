@@ -12,10 +12,16 @@ class SFBulkType(BaseSFBulkType):
         response = super()._bulk_operation(
             operation, data, external_id_field=external_id_field, **kwargs
         )
-        self._process_errors(data, response, operation, external_id_field)
+        self._process_errors(
+            data,
+            response,
+            operation,
+            external_id_field,
+            kwargs.get("batch_size", 10000),
+        )
         return response
 
-    def _process_errors(self, data, response, operation, external_id_field):
+    def _process_errors(self, data, response, operation, external_id_field, batch_size):
         """
         Parse the results of a bulk upload call and push error objects into Salesforce
         """
@@ -50,7 +56,7 @@ class SFBulkType(BaseSFBulkType):
         error_client = BaseSFBulkType(
             KicksawSalesforce.ERROR, self.bulk_url, self.headers, self.session
         )
-        error_client.insert(error_objects)
+        error_client.insert(error_objects, batch_size=batch_size)
 
 
 class SFBulkHandler(BaseSFBulkHandler):
