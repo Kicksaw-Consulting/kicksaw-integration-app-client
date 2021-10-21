@@ -40,21 +40,32 @@ class SFBulkType(BaseSFBulkType):
             if not record["success"]:
                 for error in record["errors"]:
                     error_object = {
-                        KicksawSalesforce.EXECUTION: KicksawSalesforce.execution_object_id,
-                        KicksawSalesforce.OPERATION: operation,
-                        KicksawSalesforce.SALESFORCE_OBJECT: object_name,
-                        KicksawSalesforce.ERROR_CODE: error["statusCode"],
-                        KicksawSalesforce.ERROR_MESSAGE: error["message"],
-                        KicksawSalesforce.UPSERT_KEY: upsert_key,
+                        f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.EXECUTION}": KicksawSalesforce.execution_object_id,
+                        f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.OPERATION}": operation,
+                        f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.SALESFORCE_OBJECT}": object_name,
+                        f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.ERROR_CODE}": error[
+                            "statusCode"
+                        ],
+                        f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.ERROR_MESSAGE}": error[
+                            "message"
+                        ],
+                        f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.UPSERT_KEY}": upsert_key,
                         # TODO: Add test for bulk inserts where upsert key is None
-                        KicksawSalesforce.UPSERT_KEY_VALUE: payload.get(upsert_key),
-                        KicksawSalesforce.OBJECT_PAYLOAD: json.dumps(payload),
+                        f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.UPSERT_KEY_VALUE}": payload.get(
+                            upsert_key
+                        ),
+                        f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.OBJECT_PAYLOAD}": json.dumps(
+                            payload
+                        ),
                     }
                     error_objects.append(error_object)
 
         # Push error details to Salesforce
         error_client = BaseSFBulkType(
-            KicksawSalesforce.ERROR, self.bulk_url, self.headers, self.session
+            f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.ERROR}",
+            self.bulk_url,
+            self.headers,
+            self.session,
         )
         error_client.insert(error_objects, batch_size=batch_size)
 
@@ -82,6 +93,8 @@ class KicksawSalesforce(SfClient):
     """
 
     execution_object_id = None
+
+    NAMESPACE = ""
 
     # Integration object
     INTEGRATION = "Integration__c"
@@ -128,25 +141,31 @@ class KicksawSalesforce(SfClient):
         as a field on the execution object
         """
         results = self.query(
-            f"Select Id From {KicksawSalesforce.INTEGRATION} Where Name = '{self._integration_name}'"
+            f"Select Id From {KicksawSalesforce.NAMESPACE}{KicksawSalesforce.INTEGRATION} Where Name = '{self._integration_name}'"
         )
 
         assert (
             results["totalSize"] == 1
-        ), f"No {KicksawSalesforce.INTEGRATION} named {self._integration_name}"
+        ), f"No {KicksawSalesforce.NAMESPACE}{KicksawSalesforce.INTEGRATION} named {self._integration_name}"
 
         record = results["records"][0]
         record_id = record["Id"]
 
         execution = {
-            KicksawSalesforce.EXECUTION_INTEGRATION: record_id,
-            KicksawSalesforce.EXECUTION_PAYLOAD: json.dumps(self._execution_payload),
+            f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.EXECUTION_INTEGRATION}": record_id,
+            f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.EXECUTION_PAYLOAD}": json.dumps(
+                self._execution_payload
+            ),
         }
-        response = getattr(self, KicksawSalesforce.EXECUTION).create(execution)
+        response = getattr(
+            self, f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.EXECUTION}"
+        ).create(execution)
         return response["id"]
 
     def get_execution_object(self):
-        return getattr(self, KicksawSalesforce.EXECUTION).get(self.execution_object_id)
+        return getattr(
+            self, f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.EXECUTION}"
+        ).get(self.execution_object_id)
 
     def __getattr__(self, name):
         """
