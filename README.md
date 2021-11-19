@@ -9,7 +9,7 @@ Once your org is ready to-go, instantiate the `KicksawSalesforce` class and oper
 - All of your bulk operations will have their errors parsed and error objects created in Salesforce if applicable
 
 ```python
-from kicksaw_integration_utils import KicksawSalesforce
+from kicksaw_integration_app_client import KicksawSalesforce
 
 step_function_payload = {}
 salesforce = KicksawSalesforce(step_function_payload)
