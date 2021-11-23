@@ -67,6 +67,8 @@ def test_kicksaw_salesforce_client(monkeypatch):
 
     _salesforce = SalesforceClient()
 
+    KicksawSalesforce.NAMESPACE = ""
+
     integration__c = getattr(
         _salesforce, f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.INTEGRATION}"
     ).create({"Name": LAMBDA_NAME})
@@ -173,12 +175,21 @@ def test_kicksaw_salesforce_client(monkeypatch):
     record = records[0]
 
     assert record["Id"] == salesforce.execution_object_id
-    assert record[KicksawSalesforce.SUCCESSFUL_COMPLETION] == True
-    assert record[KicksawSalesforce.ERROR_MESSAGE] == None
+    assert (
+        record[
+            f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.SUCCESSFUL_COMPLETION}"
+        ]
+        == True
+    )
+    assert (
+        record[f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.ERROR_MESSAGE}"]
+        == None
+    )
 
 
 @mock_salesforce(fresh=True)
 def test_kicksaw_salesforce_client_exception(monkeypatch):
+    KicksawSalesforce.NAMESPACE = ""
     monkeypatch.setattr(salesforce_client_module, "settings", mock_settings)
 
     _salesforce = SalesforceClient()
@@ -200,5 +211,13 @@ def test_kicksaw_salesforce_client_exception(monkeypatch):
     record = records[0]
 
     assert record["Id"] == salesforce.execution_object_id
-    assert record[KicksawSalesforce.SUCCESSFUL_COMPLETION] == False
-    assert record[KicksawSalesforce.ERROR_MESSAGE] == "Code died"
+    assert (
+        record[
+            f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.SUCCESSFUL_COMPLETION}"
+        ]
+        == False
+    )
+    assert (
+        record[f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.ERROR_MESSAGE}"]
+        == "Code died"
+    )
