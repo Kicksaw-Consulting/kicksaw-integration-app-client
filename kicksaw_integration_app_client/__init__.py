@@ -178,3 +178,20 @@ class KicksawSalesforce(SfClient):
                 self.session_id, self.bulk_url, self.proxies, self.session
             )
         return super().__getattr__(name)
+
+    def handle_exception(self, message):
+        """
+        After this is called, caller should thow Exception
+        """
+        id = KicksawSalesforce.execution_object_id
+        data = {"SuccessfulCompletion__c": False, "ErrorMessage__c": message}
+        getattr(
+            self, f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.EXECUTION}"
+        ).update(id, data)
+
+    def complete_execution(self):
+        id = KicksawSalesforce.execution_object_id
+        data = {"SuccessfulCompletion__c": True}
+        getattr(
+            self, f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.EXECUTION}"
+        ).update(id, data)
