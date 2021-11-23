@@ -96,6 +96,8 @@ def test_kicksaw_salesforce_client(monkeypatch):
 
     response = salesforce.bulk.CustomObject__c.upsert(data, "UpsertKey__c")
 
+    salesforce.complete_execution()
+
     response = salesforce.query(
         f"""
         Select
@@ -157,3 +159,46 @@ def test_kicksaw_salesforce_client(monkeypatch):
         count += 1
 
     assert count == 2
+
+    # check that we marked it as completed
+    response = salesforce.query(
+        f"""
+        Select Id, {KicksawSalesforce.SUCCESSFUL_COMPLETION}, {KicksawSalesforce.ERROR_MESSAGE} 
+        From {KicksawSalesforce.NAMESPACE}{KicksawSalesforce.EXECUTION}
+        """
+    )
+    assert response["totalSize"] == 1
+
+    records = response["records"]
+    record = records[0]
+
+    assert record["Id"] == salesforce.execution_object_id
+    assert record[KicksawSalesforce.SUCCESSFUL_COMPLETION] == True
+    assert record[KicksawSalesforce.ERROR_MESSAGE] == None
+
+
+@mock_salesforce(fresh=True)
+def test_kicksaw_salesforce_client_exception(monkeypatch):
+    monkeypatch.setattr(salesforce_client_module, "settings", mock_settings)
+
+    _salesforce = SalesforceClient()
+    getattr(
+        _salesforce, f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.INTEGRATION}"
+    ).create({"Name": LAMBDA_NAME})
+    salesforce = KicksawSalesforce(LAMBDA_NAME, {})
+    salesforce.handle_exception("Code died")
+
+    response = salesforce.query(
+        f"""
+        Select Id, {KicksawSalesforce.SUCCESSFUL_COMPLETION}, {KicksawSalesforce.ERROR_MESSAGE} 
+        From {KicksawSalesforce.NAMESPACE}{KicksawSalesforce.EXECUTION}
+        """
+    )
+    assert response["totalSize"] == 1
+
+    records = response["records"]
+    record = records[0]
+
+    assert record["Id"] == salesforce.execution_object_id
+    assert record[KicksawSalesforce.SUCCESSFUL_COMPLETION] == False
+    assert record[KicksawSalesforce.ERROR_MESSAGE] == "Code died"

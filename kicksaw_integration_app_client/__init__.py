@@ -103,6 +103,8 @@ class KicksawSalesforce(SfClient):
     EXECUTION = "IntegrationExecution__c"
     EXECUTION_PAYLOAD = "ExecutionPayload__c"  # json input for step function
     EXECUTION_INTEGRATION = "Integration__c"
+    SUCCESSFUL_COMPLETION = "SuccessfulCompletion__c"
+    ERROR_MESSAGE = "ErrorMessage__c"
 
     # Integration error object stuff
     ERROR = "IntegrationError__c"
@@ -183,15 +185,19 @@ class KicksawSalesforce(SfClient):
         """
         After this is called, caller should thow Exception
         """
-        id = KicksawSalesforce.execution_object_id
-        data = {"SuccessfulCompletion__c": False, "ErrorMessage__c": message}
+        data = {
+            KicksawSalesforce.SUCCESSFUL_COMPLETION: False,
+            KicksawSalesforce.ERROR_MESSAGE: message,
+        }
         getattr(
             self, f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.EXECUTION}"
-        ).update(id, data)
+        ).update(KicksawSalesforce.execution_object_id, data)
 
     def complete_execution(self):
-        id = KicksawSalesforce.execution_object_id
-        data = {"SuccessfulCompletion__c": True}
+        """
+        Call at the very end of the integration. This method should be the last line of code called
+        """
+        data = {KicksawSalesforce.SUCCESSFUL_COMPLETION: True}
         getattr(
             self, f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.EXECUTION}"
-        ).update(id, data)
+        ).update(KicksawSalesforce.execution_object_id, data)
