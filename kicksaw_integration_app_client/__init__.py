@@ -186,8 +186,8 @@ class KicksawSalesforce(SfClient):
         After this is called, caller should thow Exception
         """
         data = {
-            KicksawSalesforce.SUCCESSFUL_COMPLETION: False,
-            KicksawSalesforce.ERROR_MESSAGE: message,
+            f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.SUCCESSFUL_COMPLETION}": False,
+            f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.ERROR_MESSAGE}": message,
         }
         getattr(
             self, f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.EXECUTION}"
@@ -197,7 +197,9 @@ class KicksawSalesforce(SfClient):
         """
         Call at the very end of the integration. This method should be the last line of code called
         """
-        data = {KicksawSalesforce.SUCCESSFUL_COMPLETION: True}
+        data = {
+            f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.SUCCESSFUL_COMPLETION}": True
+        }
         getattr(
             self, f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.EXECUTION}"
         ).update(KicksawSalesforce.execution_object_id, data)
