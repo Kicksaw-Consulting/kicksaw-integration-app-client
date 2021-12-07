@@ -1,37 +1,31 @@
 import json
 import pytest
 
-from types import SimpleNamespace
-
 from kicksaw_integration_utils import SalesforceClient
 from kicksaw_integration_app_client import KicksawSalesforce
 
 from simple_mockforce import mock_salesforce
 
-import kicksaw_integration_utils.salesforce_client as salesforce_client_module
-
-mock_settings = SimpleNamespace(
-    SFDC_USERNAME="mock",
-    SFDC_PASSWORD="mock",
-    SFDC_SECURITY_TOKEN="mock",
-    SFDC_DOMAIN="mock",
-)
-
 LAMBDA_NAME = "example-lambda"
+
+CONNECTION_OBJECT = {
+    "username": "fake",
+    "password": "fake",
+    "security_token": "fake",
+    "domain": "fake",
+}
 
 
 @mock_salesforce(fresh=True)
 @pytest.mark.parametrize("namespace", ["", "KicksawEng__"])
-def test_kicksaw_salesforce_client_instantiation(monkeypatch, namespace):
-    monkeypatch.setattr(salesforce_client_module, "settings", mock_settings)
-
+def test_kicksaw_salesforce_client_instantiation(namespace):
     KicksawSalesforce.NAMESPACE = namespace
 
-    _salesforce = SalesforceClient()
+    _salesforce = SalesforceClient(**CONNECTION_OBJECT)
     getattr(
         _salesforce, f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.INTEGRATION}"
     ).create({"Name": LAMBDA_NAME})
-    salesforce = KicksawSalesforce(LAMBDA_NAME, {})
+    salesforce = KicksawSalesforce(CONNECTION_OBJECT, LAMBDA_NAME, {})
 
     response = salesforce.query(
         f"Select Id From {KicksawSalesforce.NAMESPACE}{KicksawSalesforce.EXECUTION}"
@@ -45,7 +39,10 @@ def test_kicksaw_salesforce_client_instantiation(monkeypatch, namespace):
 
     # instantiating with an id means we don't create an execution object
     salesforce = KicksawSalesforce(
-        LAMBDA_NAME, {}, execution_object_id=salesforce.execution_object_id
+        CONNECTION_OBJECT,
+        LAMBDA_NAME,
+        {},
+        execution_object_id=salesforce.execution_object_id,
     )
 
     # since we provided an id, the above instantiation should not have created another
@@ -62,10 +59,8 @@ def test_kicksaw_salesforce_client_instantiation(monkeypatch, namespace):
 
 
 @mock_salesforce(fresh=True)
-def test_kicksaw_salesforce_client(monkeypatch):
-    monkeypatch.setattr(salesforce_client_module, "settings", mock_settings)
-
-    _salesforce = SalesforceClient()
+def test_kicksaw_salesforce_client():
+    _salesforce = SalesforceClient(**CONNECTION_OBJECT)
 
     KicksawSalesforce.NAMESPACE = ""
 
@@ -75,7 +70,9 @@ def test_kicksaw_salesforce_client(monkeypatch):
     integration_id = integration__c["id"]
 
     step_function_payload = {"start_date": "2021-10-12"}
-    salesforce = KicksawSalesforce(LAMBDA_NAME, step_function_payload)
+    salesforce = KicksawSalesforce(
+        CONNECTION_OBJECT, LAMBDA_NAME, step_function_payload
+    )
 
     execution_object = salesforce.get_execution_object()
 
@@ -188,15 +185,14 @@ def test_kicksaw_salesforce_client(monkeypatch):
 
 
 @mock_salesforce(fresh=True)
-def test_kicksaw_salesforce_client_exception(monkeypatch):
+def test_kicksaw_salesforce_client_exception():
     KicksawSalesforce.NAMESPACE = ""
-    monkeypatch.setattr(salesforce_client_module, "settings", mock_settings)
 
-    _salesforce = SalesforceClient()
+    _salesforce = SalesforceClient(**CONNECTION_OBJECT)
     getattr(
         _salesforce, f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.INTEGRATION}"
     ).create({"Name": LAMBDA_NAME})
-    salesforce = KicksawSalesforce(LAMBDA_NAME, {})
+    salesforce = KicksawSalesforce(CONNECTION_OBJECT, LAMBDA_NAME, {})
     salesforce.handle_exception("Code died")
 
     response = salesforce.query(

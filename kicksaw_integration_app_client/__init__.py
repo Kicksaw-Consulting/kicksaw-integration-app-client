@@ -1,10 +1,19 @@
 import json
 
+from typing import TypedDict
+
 from kicksaw_integration_utils.salesforce_client import (
     SfClient,
     SFBulkHandler as BaseSFBulkHandler,
     SFBulkType as BaseSFBulkType,
 )
+
+
+class ConnectionObjects(TypedDict):
+    username: str
+    password: str
+    security_token: str
+    domain: str
 
 
 class SFBulkType(BaseSFBulkType):
@@ -117,7 +126,11 @@ class KicksawSalesforce(SfClient):
     OBJECT_PAYLOAD = "ObjectPayload__c"
 
     def __init__(
-        self, integration_name: str, payload: dict, execution_object_id: str = None
+        self,
+        connection_object: ConnectionObjects,
+        integration_name: str,
+        payload: dict,
+        execution_object_id: str = None,
     ):
         """
         In addition to instantiating the simple-salesforce client,
@@ -126,7 +139,7 @@ class KicksawSalesforce(SfClient):
         """
         self._integration_name = integration_name
         self._execution_payload = payload
-        super().__init__()
+        super().__init__(**connection_object)
         self._prepare_execution(execution_object_id)
 
     def _prepare_execution(self, execution_object_id):

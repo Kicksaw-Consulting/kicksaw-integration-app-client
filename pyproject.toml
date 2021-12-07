@@ -12,7 +12,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.8"
-kicksaw-integration-utils = "^1.4.0"
+kicksaw-integration-utils = "^2.0.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
