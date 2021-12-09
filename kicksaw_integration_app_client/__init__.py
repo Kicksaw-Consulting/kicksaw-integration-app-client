@@ -1,5 +1,6 @@
 import json
 
+from enum import Enum
 from typing import TypedDict
 
 from kicksaw_integration_utils.salesforce_client import (
@@ -14,6 +15,13 @@ class ConnectionObjects(TypedDict):
     password: str
     security_token: str
     domain: str
+
+
+class LogLevel(Enum):
+    ERROR = "ERROR"
+    WARNING = "WARNING"
+    INFO = "INFO"
+    DEBUG = "DEBUG"
 
 
 class SFBulkType(BaseSFBulkType):
@@ -125,6 +133,11 @@ class KicksawSalesforce(SfClient):
     UPSERT_KEY_VALUE = "UpsertKeyValue__c"
     OBJECT_PAYLOAD = "ObjectPayload__c"
 
+    LOG = "IntegrationLog__c"
+    LOG_MESSAGE = "LogMessage__c"
+    LOG_LEVEL = "LogLevel__c"
+    STATUS_CODE = "StatusCode__c"
+
     def __init__(
         self,
         connection_object: ConnectionObjects,
@@ -193,6 +206,24 @@ class KicksawSalesforce(SfClient):
                 self.session_id, self.bulk_url, self.proxies, self.session
             )
         return super().__getattr__(name)
+
+    def log(self, log: str, level: LogLevel, status_code: int = None):
+        """
+        Call at the very end of the integration. This method should be the last line of code called
+        """
+        data = {
+            f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.LOG_MESSAGE}": log,
+            f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.LOG_LEVEL}": level.value,
+        }
+
+        if status_code:
+            data[
+                f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.STATUS_CODE}"
+            ] = status_code
+        
+        getattr(self, f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.LOG}").create(
+            data
+        )
 
     def handle_exception(self, message):
         """

@@ -2,7 +2,7 @@ import json
 import pytest
 
 from kicksaw_integration_utils import SalesforceClient
-from kicksaw_integration_app_client import KicksawSalesforce
+from kicksaw_integration_app_client import KicksawSalesforce, LogLevel
 
 from simple_mockforce import mock_salesforce
 
@@ -94,6 +94,25 @@ def test_kicksaw_salesforce_client():
     ]
 
     response = salesforce.bulk.CustomObject__c.upsert(data, "UpsertKey__c")
+    salesforce.log("Some message", LogLevel.INFO)
+
+    response = salesforce.query(
+        f"""
+        Select 
+            Id, 
+            {KicksawSalesforce.NAMESPACE}{KicksawSalesforce.LOG_MESSAGE},
+            {KicksawSalesforce.NAMESPACE}{KicksawSalesforce.LOG_LEVEL}
+        From
+            {KicksawSalesforce.NAMESPACE}{KicksawSalesforce.LOG}
+        """
+    )
+    records = response["records"]
+    log = records[0]
+    assert (
+        log[f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.LOG_MESSAGE}"]
+        == "Some message"
+    )
+    assert log[f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.LOG_LEVEL}"] == "INFO"
 
     salesforce.complete_execution()
 
