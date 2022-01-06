@@ -12,7 +12,7 @@ Once your org is ready to-go, instantiate the `KicksawSalesforce` class and oper
 from kicksaw_integration_app_client import KicksawSalesforce
 
 step_function_payload = {}
-salesforce = KicksawSalesforce(step_function_payload)
+salesforce = KicksawSalesforce(connection_object, integration_name, step_function_payload)
 
 salesforce.bulk.Account.upsert()
 ```
