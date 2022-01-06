@@ -10,7 +10,7 @@ from kicksaw_integration_utils.salesforce_client import (
 )
 
 
-class ConnectionObjects(TypedDict):
+class ConnectionObject(TypedDict):
     username: str
     password: str
     security_token: str
@@ -140,7 +140,7 @@ class KicksawSalesforce(SfClient):
 
     def __init__(
         self,
-        connection_object: ConnectionObjects,
+        connection_object: ConnectionObject,
         integration_name: str,
         payload: dict,
         execution_object_id: str = None,
@@ -155,10 +155,30 @@ class KicksawSalesforce(SfClient):
         super().__init__(**connection_object)
         self._prepare_execution(execution_object_id)
 
-    def _prepare_execution(self, execution_object_id):
+    @staticmethod
+    def instantiate_from_id(
+        connection_object: ConnectionObject, execution_object_id: str
+    ):
+        # this stuff just isn't needed once the execution object is created
+        name = ""
+        payload = {}
+        return KicksawSalesforce(
+            connection_object, name, payload, execution_object_id=execution_object_id
+        )
+
+    def _prepare_execution(self, execution_object_id: str):
         if not execution_object_id:
             execution_object_id = self._create_execution_object()
         KicksawSalesforce.execution_object_id = execution_object_id
+
+    def _get_integration_by_name(self):
+        results = self.query(
+            f"Select Id From {KicksawSalesforce.NAMESPACE}{KicksawSalesforce.INTEGRATION} Where Name = '{self._integration_name}'"
+        )
+        assert (
+            results["totalSize"] == 1
+        ), f"No {KicksawSalesforce.NAMESPACE}{KicksawSalesforce.INTEGRATION} named {self._integration_name}"
+        return results["records"][0]
 
     def _create_execution_object(self):
         """
@@ -168,15 +188,7 @@ class KicksawSalesforce(SfClient):
         Adds the payload for the first step of the step function
         as a field on the execution object
         """
-        results = self.query(
-            f"Select Id From {KicksawSalesforce.NAMESPACE}{KicksawSalesforce.INTEGRATION} Where Name = '{self._integration_name}'"
-        )
-
-        assert (
-            results["totalSize"] == 1
-        ), f"No {KicksawSalesforce.NAMESPACE}{KicksawSalesforce.INTEGRATION} named {self._integration_name}"
-
-        record = results["records"][0]
+        record = self._get_integration_by_name()
         record_id = record["Id"]
 
         execution = {
@@ -195,7 +207,7 @@ class KicksawSalesforce(SfClient):
             self, f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.EXECUTION}"
         ).get(self.execution_object_id)
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str):
         """
         This is the source code from simple salesforce, but we swap out
         SFBulkHandler with our own
@@ -220,12 +232,12 @@ class KicksawSalesforce(SfClient):
             data[
                 f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.STATUS_CODE}"
             ] = status_code
-        
+
         getattr(self, f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.LOG}").create(
             data
         )
 
-    def handle_exception(self, message):
+    def handle_exception(self, message: str):
         """
         After this is called, caller should thow Exception
         """
