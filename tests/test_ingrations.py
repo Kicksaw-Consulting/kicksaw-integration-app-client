@@ -38,10 +38,8 @@ def test_kicksaw_salesforce_client_instantiation(namespace):
     assert record["Id"] == salesforce.execution_object_id
 
     # instantiating with an id means we don't create an execution object
-    salesforce = KicksawSalesforce(
+    salesforce = KicksawSalesforce.instantiate_from_id(
         CONNECTION_OBJECT,
-        LAMBDA_NAME,
-        {},
         execution_object_id=salesforce.execution_object_id,
     )
 
