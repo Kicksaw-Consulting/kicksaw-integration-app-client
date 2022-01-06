@@ -6,6 +6,7 @@ from kicksaw_integration_app_client import KicksawSalesforce, LogLevel
 
 from simple_mockforce import mock_salesforce
 
+INTEGRATION_NAME = "example-integration"
 LAMBDA_NAME = "example-lambda"
 
 CONNECTION_OBJECT = {
@@ -22,10 +23,8 @@ def test_kicksaw_salesforce_client_instantiation(namespace):
     KicksawSalesforce.NAMESPACE = namespace
 
     _salesforce = SalesforceClient(**CONNECTION_OBJECT)
-    getattr(
-        _salesforce, f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.INTEGRATION}"
-    ).create({"Name": LAMBDA_NAME})
-    salesforce = KicksawSalesforce(CONNECTION_OBJECT, LAMBDA_NAME, {})
+    KicksawSalesforce.create_integration(_salesforce, INTEGRATION_NAME, LAMBDA_NAME)
+    salesforce = KicksawSalesforce(CONNECTION_OBJECT, INTEGRATION_NAME, {})
 
     response = salesforce.query(
         f"Select Id From {KicksawSalesforce.NAMESPACE}{KicksawSalesforce.EXECUTION}"
@@ -61,15 +60,14 @@ def test_kicksaw_salesforce_client():
     _salesforce = SalesforceClient(**CONNECTION_OBJECT)
 
     KicksawSalesforce.NAMESPACE = ""
-
-    integration__c = getattr(
-        _salesforce, f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.INTEGRATION}"
-    ).create({"Name": LAMBDA_NAME})
+    integration__c = KicksawSalesforce.create_integration(
+        _salesforce, INTEGRATION_NAME, LAMBDA_NAME
+    )
     integration_id = integration__c["id"]
 
     step_function_payload = {"start_date": "2021-10-12"}
     salesforce = KicksawSalesforce(
-        CONNECTION_OBJECT, LAMBDA_NAME, step_function_payload
+        CONNECTION_OBJECT, INTEGRATION_NAME, step_function_payload
     )
 
     execution_object = salesforce.get_execution_object()
@@ -206,10 +204,8 @@ def test_kicksaw_salesforce_client_exception():
     KicksawSalesforce.NAMESPACE = ""
 
     _salesforce = SalesforceClient(**CONNECTION_OBJECT)
-    getattr(
-        _salesforce, f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.INTEGRATION}"
-    ).create({"Name": LAMBDA_NAME})
-    salesforce = KicksawSalesforce(CONNECTION_OBJECT, LAMBDA_NAME, {})
+    KicksawSalesforce.create_integration(_salesforce, INTEGRATION_NAME, LAMBDA_NAME)
+    salesforce = KicksawSalesforce(CONNECTION_OBJECT, INTEGRATION_NAME, {})
     salesforce.handle_exception("Code died")
 
     response = salesforce.query(

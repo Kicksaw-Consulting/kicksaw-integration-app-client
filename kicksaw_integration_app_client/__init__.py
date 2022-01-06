@@ -115,6 +115,7 @@ class KicksawSalesforce(SfClient):
 
     # Integration object
     INTEGRATION = "Integration__c"
+    LAMBDA_NAME = "LambdaName__c"
 
     # Integration execution object stuff
     EXECUTION = "IntegrationExecution__c"
@@ -218,6 +219,22 @@ class KicksawSalesforce(SfClient):
                 self.session_id, self.bulk_url, self.proxies, self.session
             )
         return super().__getattr__(name)
+
+    @staticmethod
+    def create_integration(salesforce: SfClient, name: str, lambda_name: str):
+        """
+        Call to create the parent integration object
+
+        Needs to be static because an instance of this class depends on an integration
+        already existing
+        """
+        data = {
+            "Name": name,
+            f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.LAMBDA_NAME}": lambda_name,
+        }
+        return getattr(
+            salesforce, f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.INTEGRATION}"
+        ).create(data)
 
     def log(self, log: str, level: LogLevel, status_code: int = None):
         """
