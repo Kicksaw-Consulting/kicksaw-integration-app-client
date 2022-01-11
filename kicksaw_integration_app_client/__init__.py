@@ -121,6 +121,7 @@ class KicksawSalesforce(SfClient):
     EXECUTION = "IntegrationExecution__c"
     EXECUTION_PAYLOAD = "ExecutionPayload__c"  # json input for step function
     EXECUTION_INTEGRATION = "Integration__c"
+    RESPONSE_PAYLOAD = "ResponsePayload__c"
     SUCCESSFUL_COMPLETION = "SuccessfulCompletion__c"
     ERROR_MESSAGE = "ErrorMessage__c"
 
@@ -266,13 +267,19 @@ class KicksawSalesforce(SfClient):
             self, f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.EXECUTION}"
         ).update(KicksawSalesforce.execution_object_id, data)
 
-    def complete_execution(self):
+    def complete_execution(self, response_payload: dict = None):
         """
         Call at the very end of the integration. This method should be the last line of code called
         """
         data = {
             f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.SUCCESSFUL_COMPLETION}": True
         }
+
+        if response_payload:
+            data[
+                f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.RESPONSE_PAYLOAD}"
+            ] = json.dumps(response_payload)
+
         getattr(
             self, f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.EXECUTION}"
         ).update(KicksawSalesforce.execution_object_id, data)

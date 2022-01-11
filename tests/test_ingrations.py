@@ -110,7 +110,7 @@ def test_kicksaw_salesforce_client():
     )
     assert log[f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.LOG_LEVEL}"] == "INFO"
 
-    salesforce.complete_execution()
+    salesforce.complete_execution(response_payload={"AllGood": True})
 
     response = salesforce.query(
         f"""
@@ -177,8 +177,13 @@ def test_kicksaw_salesforce_client():
     # check that we marked it as completed
     response = salesforce.query(
         f"""
-        Select Id, {KicksawSalesforce.SUCCESSFUL_COMPLETION}, {KicksawSalesforce.ERROR_MESSAGE} 
-        From {KicksawSalesforce.NAMESPACE}{KicksawSalesforce.EXECUTION}
+        Select 
+            Id,
+            {KicksawSalesforce.SUCCESSFUL_COMPLETION},
+            {KicksawSalesforce.ERROR_MESSAGE},
+            {KicksawSalesforce.RESPONSE_PAYLOAD}
+        From
+            {KicksawSalesforce.NAMESPACE}{KicksawSalesforce.EXECUTION}
         """
     )
     assert response["totalSize"] == 1
@@ -197,6 +202,9 @@ def test_kicksaw_salesforce_client():
         record[f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.ERROR_MESSAGE}"]
         == None
     )
+    assert json.loads(
+        record[f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.RESPONSE_PAYLOAD}"]
+    ) == {"AllGood": True}
 
 
 @mock_salesforce(fresh=True)
@@ -210,8 +218,13 @@ def test_kicksaw_salesforce_client_exception():
 
     response = salesforce.query(
         f"""
-        Select Id, {KicksawSalesforce.SUCCESSFUL_COMPLETION}, {KicksawSalesforce.ERROR_MESSAGE} 
-        From {KicksawSalesforce.NAMESPACE}{KicksawSalesforce.EXECUTION}
+        Select 
+            Id,
+            {KicksawSalesforce.SUCCESSFUL_COMPLETION},
+            {KicksawSalesforce.ERROR_MESSAGE},
+            {KicksawSalesforce.RESPONSE_PAYLOAD}
+        From
+            {KicksawSalesforce.NAMESPACE}{KicksawSalesforce.EXECUTION}
         """
     )
     assert response["totalSize"] == 1
@@ -229,4 +242,8 @@ def test_kicksaw_salesforce_client_exception():
     assert (
         record[f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.ERROR_MESSAGE}"]
         == "Code died"
+    )
+    assert (
+        record[f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.RESPONSE_PAYLOAD}"]
+        == None
     )
