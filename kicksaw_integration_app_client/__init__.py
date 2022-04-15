@@ -135,7 +135,10 @@ class KicksawSalesforce(SfClient):
     UPSERT_KEY_VALUE = "UpsertKeyValue__c"
     OBJECT_PAYLOAD = "ObjectPayload__c"
 
+    # Integration log stuff
+    ## object name
     LOG = "IntegrationLog__c"
+    ## fields
     LOG_MESSAGE = "LogMessage__c"
     LOG_LEVEL = "LogLevel__c"
     STATUS_CODE = "StatusCode__c"
