@@ -239,7 +239,7 @@ class KicksawSalesforce(SfClient):
 
     def log(self, log: str, level: LogLevel, status_code: int = None):
         """
-        Call at the very end of the integration. This method should be the last line of code called
+        Used for recording custom messages
         """
         data = {
             f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.LOG_MESSAGE}": log,
