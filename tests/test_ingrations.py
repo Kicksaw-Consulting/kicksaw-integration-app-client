@@ -247,3 +247,21 @@ def test_kicksaw_salesforce_client_exception():
         record[f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.RESPONSE_PAYLOAD}"]
         == None
     )
+
+    salesforce.log("Testing...", LogLevel.INFO)
+
+    response = salesforce.query(
+        f"""
+        Select 
+            {KicksawSalesforce.NAMESPACE}{KicksawSalesforce.PARENT_EXECUTION}
+        From
+            {KicksawSalesforce.NAMESPACE}{KicksawSalesforce.LOG}
+        """
+    )
+    assert response["totalSize"] == 1
+
+    log = response["records"][0]
+    assert (
+        log[f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.PARENT_EXECUTION}"]
+        == salesforce.execution_object_id
+    )

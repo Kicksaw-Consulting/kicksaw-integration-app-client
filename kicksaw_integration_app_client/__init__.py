@@ -142,6 +142,7 @@ class KicksawSalesforce(SfClient):
     LOG_MESSAGE = "LogMessage__c"
     LOG_LEVEL = "LogLevel__c"
     STATUS_CODE = "StatusCode__c"
+    PARENT_EXECUTION = "IntegrationExecution__c"
 
     def __init__(
         self,
@@ -245,6 +246,7 @@ class KicksawSalesforce(SfClient):
         Used for recording custom messages
         """
         data = {
+            f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.PARENT_EXECUTION}": self.execution_object_id,
             f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.LOG_MESSAGE}": log,
             f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.LOG_LEVEL}": level.value,
         }
