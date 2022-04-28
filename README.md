@@ -1,6 +1,6 @@
 # Overview
 
-To use Kicksaw's integration app, install [this package](https://login.salesforce.com/packaging/installPackage.apexp?p0=04t4T000001u3GmQAI) in your Salesforce organization.
+To use Kicksaw's integration app, install [this package](https://login.salesforce.com/packaging/installPackage.apexp?p0=04t8b0000012bOZAAY) in your Salesforce organization.
 
 Once your org is ready to-go, instantiate the `KicksawSalesforce` class and operate like normal, but note:
 
