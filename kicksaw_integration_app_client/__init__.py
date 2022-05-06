@@ -142,6 +142,7 @@ class KicksawSalesforce(SfClient):
     LOG_MESSAGE = "LogMessage__c"
     LOG_LEVEL = "LogLevel__c"
     STATUS_CODE = "StatusCode__c"
+    ASSOCIATED_ENTITY = "AssociatedEntity__c"
     PARENT_EXECUTION = "IntegrationExecution__c"
 
     def __init__(
@@ -241,7 +242,13 @@ class KicksawSalesforce(SfClient):
             salesforce, f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.INTEGRATION}"
         ).create(data)
 
-    def log(self, log: str, level: LogLevel, status_code: int = None):
+    def log(
+        self,
+        log: str,
+        level: LogLevel,
+        status_code: int = None,
+        associated_entity: str = None,
+    ):
         """
         Used for recording custom messages
         """
@@ -255,6 +262,10 @@ class KicksawSalesforce(SfClient):
             data[
                 f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.STATUS_CODE}"
             ] = status_code
+        if associated_entity:
+            data[
+                f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.ASSOCIATED_ENTITY}"
+            ] = associated_entity
 
         getattr(self, f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.LOG}").create(
             data
