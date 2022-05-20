@@ -206,6 +206,28 @@ def test_kicksaw_salesforce_client():
         record[f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.RESPONSE_PAYLOAD}"]
     ) == {"AllGood": True}
 
+    salesforce.update_execution_object_payload({"success": True})
+
+    # check that we updated the payload
+    response = salesforce.query(
+        f"""
+        Select 
+            Id,
+            {KicksawSalesforce.EXECUTION_PAYLOAD}
+        From
+            {KicksawSalesforce.NAMESPACE}{KicksawSalesforce.EXECUTION}
+        """
+    )
+    assert response["totalSize"] == 1
+
+    records = response["records"]
+    record = records[0]
+
+    assert (
+        record[f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.EXECUTION_PAYLOAD}"]
+        == '{"success": true}'
+    )
+
 
 @mock_salesforce(fresh=True)
 def test_kicksaw_salesforce_client_exception():

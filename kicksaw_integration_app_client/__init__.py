@@ -1,7 +1,7 @@
 import json
 
 from enum import Enum
-from typing import TypedDict
+from typing import TypedDict, Union
 
 from kicksaw_integration_utils.salesforce_client import (
     SfClient,
@@ -208,6 +208,16 @@ class KicksawSalesforce(SfClient):
             self, f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.EXECUTION}"
         ).create(execution)
         return response["id"]
+
+    def update_execution_object_payload(self, payload: Union[dict, list]):
+        data = {
+            f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.EXECUTION_PAYLOAD}": json.dumps(
+                payload
+            ),
+        }
+        getattr(
+            self, f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.EXECUTION}"
+        ).update(KicksawSalesforce.execution_object_id, data)
 
     def get_execution_object(self):
         return getattr(
