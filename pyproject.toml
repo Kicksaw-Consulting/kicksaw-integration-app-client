@@ -16,7 +16,7 @@ kicksaw-integration-utils = "^2.0.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
-simple-mockforce = "^0.1.12"
+simple-mockforce = "^0.4.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

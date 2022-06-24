@@ -151,6 +151,7 @@ class KicksawSalesforce(SfClient):
         integration_name: str,
         payload: dict,
         execution_object_id: str = None,
+        create_missing_integration: bool = False,
     ):
         """
         In addition to instantiating the simple-salesforce client,
@@ -159,6 +160,7 @@ class KicksawSalesforce(SfClient):
         """
         self._integration_name = integration_name
         self._execution_payload = payload
+        self._create_missing_integration = create_missing_integration
         super().__init__(**connection_object)
         self._prepare_execution(execution_object_id)
 
@@ -182,9 +184,15 @@ class KicksawSalesforce(SfClient):
         results = self.query(
             f"Select Id From {KicksawSalesforce.NAMESPACE}{KicksawSalesforce.INTEGRATION} Where Name = '{self._integration_name}'"
         )
-        assert (
-            results["totalSize"] == 1
-        ), f"No {KicksawSalesforce.NAMESPACE}{KicksawSalesforce.INTEGRATION} named {self._integration_name}"
+        if not results["totalSize"] == 1 and self._create_missing_integration:
+            response = self.create_integration(self, self._integration_name, None)
+            # mock the shape of the object returned by the query
+            return {"Id": response["id"]}
+        else:
+            assert (
+                results["totalSize"] == 1
+            ), f"No {KicksawSalesforce.NAMESPACE}{KicksawSalesforce.INTEGRATION} named {self._integration_name}"
+
         return results["records"][0]
 
     def _create_execution_object(self):
