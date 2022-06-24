@@ -23,8 +23,12 @@ def test_kicksaw_salesforce_client_instantiation(namespace):
     KicksawSalesforce.NAMESPACE = namespace
 
     _salesforce = SalesforceClient(**CONNECTION_OBJECT)
-    KicksawSalesforce.create_integration(_salesforce, INTEGRATION_NAME, LAMBDA_NAME)
-    salesforce = KicksawSalesforce(CONNECTION_OBJECT, INTEGRATION_NAME, {})
+    # test that we spawn an integration if it's missing when create_missing_integration is true
+    # but we need to create an integration so that the object exists in mockforce
+    KicksawSalesforce.create_integration(_salesforce, "randomname", LAMBDA_NAME)
+    salesforce = KicksawSalesforce(
+        CONNECTION_OBJECT, INTEGRATION_NAME, {}, create_missing_integration=True
+    )
 
     response = salesforce.query(
         f"Select Id From {KicksawSalesforce.NAMESPACE}{KicksawSalesforce.EXECUTION}"
@@ -45,7 +49,7 @@ def test_kicksaw_salesforce_client_instantiation(namespace):
     # since we provided an id, the above instantiation should not have created another
     # execution object
     response = salesforce.query(
-        f"Select Id From {KicksawSalesforce.NAMESPACE}{KicksawSalesforce.EXECUTION}"
+        f"Select Id, {KicksawSalesforce.NAMESPACE}{KicksawSalesforce.INTEGRATION} From {KicksawSalesforce.NAMESPACE}{KicksawSalesforce.EXECUTION}"
     )
     assert response["totalSize"] == 1
 
@@ -53,6 +57,17 @@ def test_kicksaw_salesforce_client_instantiation(namespace):
     record = records[0]
 
     assert record["Id"] == salesforce.execution_object_id
+
+    response = salesforce.query(
+        f"Select Id From {KicksawSalesforce.NAMESPACE}{KicksawSalesforce.INTEGRATION} Where Name = '{INTEGRATION_NAME}'"
+    )
+    records = response["records"]
+    integration = records[0]
+
+    assert (
+        record[f"{KicksawSalesforce.NAMESPACE}{KicksawSalesforce.INTEGRATION}"]
+        == integration["Id"]
+    )
 
 
 @mock_salesforce(fresh=True)

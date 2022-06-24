@@ -125,7 +125,7 @@ test = ["pytest (>=6.2.0)", "pytest-cov", "pytest-subtests", "pytest-xdist", "pr
 
 [[package]]
 name = "decorator"
-version = "5.1.0"
+version = "5.1.1"
 description = "Decorators for Humans"
 category = "dev"
 optional = false
@@ -248,7 +248,7 @@ six = ">=1.5"
 
 [[package]]
 name = "python-soql-parser"
-version = "0.1.10"
+version = "0.1.11"
 description = "A pyparsing-based library for parsing SOQL statements"
 category = "dev"
 optional = false
@@ -277,19 +277,18 @@ use_chardet_on_py3 = ["chardet (>=3.0.2,<5)"]
 
 [[package]]
 name = "responses"
-version = "0.13.4"
+version = "0.20.0"
 description = "A utility library for mocking out the `requests` Python library."
 category = "dev"
 optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+python-versions = ">=3.7"
 
 [package.dependencies]
-requests = ">=2.0"
-six = "*"
+requests = ">=2.0,<3.0"
 urllib3 = ">=1.25.10"
 
 [package.extras]
-tests = ["coverage (>=3.7.1,<6.0.0)", "pytest-cov", "pytest-localserver", "flake8", "types-mock", "types-requests", "types-six", "pytest (>=4.6,<5.0)", "pytest (>=4.6)", "mypy"]
+tests = ["pytest (>=7.0.0)", "coverage (>=6.0.0)", "pytest-cov", "pytest-asyncio", "pytest-localserver", "flake8", "types-mock", "types-requests", "mypy"]
 
 [[package]]
 name = "s3transfer"
@@ -307,16 +306,17 @@ crt = ["botocore[crt] (>=1.20.29,<2.0a.0)"]
 
 [[package]]
 name = "simple-mockforce"
-version = "0.1.12"
+version = "0.4.1"
 description = "A companion package for simple-salesforce that enables the testing of code that interacts with Salesforce's API"
 category = "dev"
 optional = false
 python-versions = ">=3.8,<4.0"
 
 [package.dependencies]
-decorator = ">=5.0.7,<6.0.0"
-python-soql-parser = ">=0.1.0,<0.2.0"
-responses = ">=0.13.2,<0.14.0"
+decorator = ">=5.1.1,<6.0.0"
+python-dateutil = ">=2.8.2,<3.0.0"
+python-soql-parser = ">=0.1.11,<0.2.0"
+responses = ">=0.20.0,<0.21.0"
 
 [[package]]
 name = "simple-salesforce"
@@ -362,7 +362,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "d51aea49816f4e6f130abb211cf9b6bde5e42695a47b2ac74ab142e64be41dcc"
+content-hash = "a882b50774d38780a779d2c75799f044829490805861fcd4ee4bb03093560d67"
 
 [metadata.files]
 atomicwrites = [
@@ -473,8 +473,8 @@ cryptography = [
     {file = "cryptography-36.0.0.tar.gz", hash = "sha256:52f769ecb4ef39865719aedc67b4b7eae167bafa48dbc2a26dd36fa56460507f"},
 ]
 decorator = [
-    {file = "decorator-5.1.0-py3-none-any.whl", hash = "sha256:7b12e7c3c6ab203a29e157335e9122cb03de9ab7264b137594103fd4a683b374"},
-    {file = "decorator-5.1.0.tar.gz", hash = "sha256:e59913af105b9860aa2c8d3272d9de5a56a4e608db9a2f167a8480b323d529a7"},
+    {file = "decorator-5.1.1-py3-none-any.whl", hash = "sha256:b8c3f85900b9dc423225913c5aace94729fe1fa9763b38939a95226f02d37186"},
+    {file = "decorator-5.1.1.tar.gz", hash = "sha256:637996211036b6385ef91435e4fae22989472f9d571faba8927ba8253acbc330"},
 ]
 idna = [
     {file = "idna-3.3-py3-none-any.whl", hash = "sha256:84d9dd047ffa80596e0f246e2eab0b391788b0503584e8945f2368256d2735ff"},
@@ -521,24 +521,24 @@ python-dateutil = [
     {file = "python_dateutil-2.8.2-py2.py3-none-any.whl", hash = "sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9"},
 ]
 python-soql-parser = [
-    {file = "python-soql-parser-0.1.10.tar.gz", hash = "sha256:9e700710d709e956c1be9cbda6fce3c8c2dbd020999e04df45e143400197219d"},
-    {file = "python_soql_parser-0.1.10-py3-none-any.whl", hash = "sha256:9d64df5c495870f705cd4e6a8367b5f1494577dc3e0d9486f2dc3b01e8407408"},
+    {file = "python-soql-parser-0.1.11.tar.gz", hash = "sha256:cec6d5611ce434373cafb9a33f4751d9841f087fe31c71547b7556d54e131f5e"},
+    {file = "python_soql_parser-0.1.11-py3-none-any.whl", hash = "sha256:192723f45506a7f88079062665d520dc71d7b4641073afd5566d4ecaee2b65f4"},
 ]
 requests = [
     {file = "requests-2.26.0-py2.py3-none-any.whl", hash = "sha256:6c1246513ecd5ecd4528a0906f910e8f0f9c6b8ec72030dc9fd154dc1a6efd24"},
     {file = "requests-2.26.0.tar.gz", hash = "sha256:b8aa58f8cf793ffd8782d3d8cb19e66ef36f7aba4353eec859e74678b01b07a7"},
 ]
 responses = [
-    {file = "responses-0.13.4-py2.py3-none-any.whl", hash = "sha256:d8d0f655710c46fd3513b9202a7f0dcedd02ca0f8cf4976f27fa8ab5b81e656d"},
-    {file = "responses-0.13.4.tar.gz", hash = "sha256:9476775d856d3c24ae660bbebe29fb6d789d4ad16acd723efbfb6ee20990b899"},
+    {file = "responses-0.20.0-py3-none-any.whl", hash = "sha256:18831bc2d72443b67664d98038374a6fa1f27eaaff4dd9a7d7613723416fea3c"},
+    {file = "responses-0.20.0.tar.gz", hash = "sha256:644905bc4fb8a18fa37e3882b2ac05e610fe8c2f967d327eed669e314d94a541"},
 ]
 s3transfer = [
     {file = "s3transfer-0.5.0-py3-none-any.whl", hash = "sha256:9c1dc369814391a6bda20ebbf4b70a0f34630592c9aa520856bf384916af2803"},
     {file = "s3transfer-0.5.0.tar.gz", hash = "sha256:50ed823e1dc5868ad40c8dc92072f757aa0e653a192845c94a3b676f4a62da4c"},
 ]
 simple-mockforce = [
-    {file = "simple-mockforce-0.1.12.tar.gz", hash = "sha256:69a57e04bc07ed37674e3abf920cf2d0eb2e57148720b639a55e6e1b823f3b44"},
-    {file = "simple_mockforce-0.1.12-py3-none-any.whl", hash = "sha256:fc3fd62758b6060b1a3f1a42a247884fe7b62c24f2f39ba1cf0e5bc6479d6fe4"},
+    {file = "simple-mockforce-0.4.1.tar.gz", hash = "sha256:794d568d5382017d35814614c68d4890f5390eb927c1d2e74350cb68c57456e3"},
+    {file = "simple_mockforce-0.4.1-py3-none-any.whl", hash = "sha256:7742a7dca14920d97a118515f10f1454e6c9a527639d1ffd700b1a89c1462d22"},
 ]
 simple-salesforce = [
     {file = "simple-salesforce-1.11.4.tar.gz", hash = "sha256:3768fe40d04daa74409acccd9934fcf833697c6b239d9bf52d7f87a99efbe41e"},
