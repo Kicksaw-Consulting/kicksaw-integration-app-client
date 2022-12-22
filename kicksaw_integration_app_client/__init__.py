@@ -84,7 +84,8 @@ class SFBulkType(BaseSFBulkType):
             self.headers,
             self.session,
         )
-        error_client.insert(error_objects, batch_size=batch_size)
+        if error_objects:
+            error_client.insert(error_objects, batch_size=batch_size)
 
 
 class SFBulkHandler(BaseSFBulkHandler):
