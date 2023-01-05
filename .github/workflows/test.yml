@@ -15,7 +15,7 @@ jobs:
       - name: Install python
         uses: actions/setup-python@v4
         with:
-          python-version: "{{ config.python_version }}"
+          python-version: "3.9"
       - name: Cache poetry installation
         id: cache-poetry
         uses: actions/cache@v3
